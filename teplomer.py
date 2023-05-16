@@ -7,3 +7,6 @@ URL = "http://moje.meteo-pocasi.cz/environment/web/me220012/xml/xml.xml?USID=167
 response = requests.get(URL)
 with open('feed.xml', 'wb') as file:
     file.write(response.content)
+
+mytree = ET.parse(URL)
+myroot = mytree.getroot()
