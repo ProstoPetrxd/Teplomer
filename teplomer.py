@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+"""Program, který vypisuje data o počasí z meteostanice ve Dvoře Králové nad Labem na Gymnáziu"""
 import time
 import datetime
 import urllib.request
