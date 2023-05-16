@@ -4,10 +4,10 @@ import datetime
 import urllib.request
 import xml.etree.ElementTree as ET
 
+URL = "http://moje.meteo-pocasi.cz/environment/web/me220012/xml/xml.xml?USID=1673&_=1684220025754"
 class PyMeteo:
     debug = False
     url = None
-    URL = "http://moje.meteo-pocasi.cz/environment/web/me220012/xml/xml.xml?USID=1673&_=1684220025754"
     root = None
     timestamp = None
     def __init__(self, url, download_now=False, debug=False):
@@ -33,7 +33,8 @@ class PyMeteo:
         try:
             self.root = ET.fromstring(xmldata)
             self.timestamp = time.mktime
-            (datetime.datetime.strptime(self.root.attrib['date'] + ' ' + self.root.attrib['time'], '%Y-%m-%d %H:%M:%S').timetuple())
+            (datetime.datetime.strptime(self.root.attrib['date'] + ' ' +
+                                        self.root.attrib['time'], '%Y-%m-%d %H:%M:%S').timetuple())
             if self.debug:
                 print('Data parsed')
         except Exception:
