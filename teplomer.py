@@ -83,8 +83,7 @@ if __name__ == '__main__':
     sensors = ['temperature', 'temperature_apparent', 'humidity', 'pressure']
     print ("Dvůr Králové nad Labem")
     m = PyMeteo
-    ('http://moje.meteo-pocasi.cz/environment/web/me220012/xml/xml.xml?USID=1673&_=1684220025754',
-    debug=True)
+    ('http://moje.meteo-pocasi.cz/environment/web/me220012/xml/xml.xml?USID=1673&_=1684220025754', debug=True)
     m.download()
     m.get_last_update()
     for sensor in sensors:
