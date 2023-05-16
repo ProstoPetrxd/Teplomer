@@ -4,7 +4,7 @@ from urllib.request import urlopen
 
 URL = "http://moje.meteo-pocasi.cz/environment/web/me220012/xml/xml.xml?USID=1673&_=1684220025754"
 
-with open("file.xml", "r+") as xml:
+with open("file.xml", encoding=utf-8) as xml:
     xml.write(urlopen(URL).read().decode('utf-8'))
     xml.close()
 
