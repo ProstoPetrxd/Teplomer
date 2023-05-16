@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 
 URL = "http://moje.meteo-pocasi.cz/environment/web/me220012/xml/xml.xml?USID=1673&_=1684220025754"
 class PyMeteo:
-"""Class pro přečtení dat z meteostanice"""
+    """Class pro přečtení dat z meteostanice"""
     debug = False
     url = None
     root = None
