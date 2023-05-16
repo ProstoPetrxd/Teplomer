@@ -1,4 +1,4 @@
-"""Program, který pomocí dat z meteostanice na Gymnáziu ve Dvoře Králové vytváří teploměr"""
+"""Program, který pomocí dat z meteostanice na Gymnáziu ve Dvoře Králové vytváří teploměr."""
 import xml.etree.ElementTree as ET
 import requests
 
