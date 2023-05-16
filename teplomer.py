@@ -43,9 +43,11 @@ class PyMeteo:
             if self.debug:
                 print('Error when parsing data')
     def clear_values(self):
+        """Vyčištění"""
         self.root = None
         self.timestamp = None
     def get_value(self, param):
+        """Získej hodnotu"""
         if self.root is None:
             if self.debug:
                 print('No data downloaded')
@@ -57,6 +59,7 @@ class PyMeteo:
             return value
         return None
     def get_min(self, param):
+        """Minimální naměřená hodnota"""
         if self.root is None:
             if self.debug:
                 print('No data downloaded')
@@ -68,6 +71,7 @@ class PyMeteo:
             return value
         return None
     def get_max(self, param):
+        """"Maximální naměřená hodnota"""
         if self.root is None:
             if self.debug:
                 print('No data downloaded')
@@ -79,6 +83,7 @@ class PyMeteo:
             return value
         return None
     def get_last_update(self):
+        """Nejnovější data"""
         if self.debug:
             print(time.strftime('%c', time.localtime(self.timestamp)))
         return self.timestamp
