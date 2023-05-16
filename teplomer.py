@@ -1,18 +1,15 @@
 #!/usr/bin/env python
- 
 import time
 import datetime
 import urllib.request
 import xml.etree.ElementTree as ET
  
- 
 class PyMeteo:
     debug = False
     url = None
- 
     root = None
     timestamp = None
- 
+    
     def __init__(self, url, download_now=False, debug=False):
         self.debug = debug
         self.url = url
@@ -99,22 +96,9 @@ class PyMeteo:
  
 if __name__ == '__main__':
     sensors = ['temperature', 'temperature_apparent', 'humidity', 'pressure']
- 
-    m = PyMeteo('https://moje.meteo-pocasi.cz/environment/web/me220002/xml/xml.xml?USID=788', debug=True)
+    print ("Dvůr Králové nad Labem")
+    m = PyMeteo('http://moje.meteo-pocasi.cz/environment/web/me220012/xml/xml.xml?USID=1673&_=1684220025754', debug=True)
     m.download()
     m.get_last_update()
     for sensor in sensors:
         m.get_value(sensor)
- 
-    m = PyMeteo('https://moje.meteo-pocasi.cz/environment/web/me220002/xml/xml.xml?USID=1506', debug=True)
-    m.download()
-    m.get_last_update()
-    for sensor in sensors:
-        m.get_value(sensor)
- 
-    m = PyMeteo('https://moje.meteo-pocasi.cz/environment/web/me220002/xml/xml.xml?USID=1559', debug=True)
-    m.download()
-    m.get_last_update()
-    for sensor in sensors:
-        m.get_value(sensor)
- 
