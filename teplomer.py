@@ -1,3 +1,4 @@
+"""Program, který pomocí dat z meteostanice na Gymnáziu ve Dvoře Králové vytváří teploměr"""
 import requests
 import urllib3
 import xml.etree.ElementTree as ET
