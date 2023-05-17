@@ -19,6 +19,7 @@ class PyMeteo:
         if download_now:
             self.download()
     def download(self):
+        """Stáhnutí dat z internetu"""
         try:
             xmldata = urllib.request.urlopen(self.url, timeout=5).read().decode('utf-8')
         except Exception:
