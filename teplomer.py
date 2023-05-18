@@ -119,7 +119,7 @@ while True:
                 "html": "1",
                 "user": "u586cd4vg7qf4mtgert6buum515t8u",
                 "title": "Teplota ve Dvoře: %s°C" % nova_teplota,
-                "message": "Rozdíl teplot za posledních 10 minut: <b>%s°C</b>" % rozdil_teplot,
+                "message": "Rozdíl teplot za posledních 10 minut: <b>%s°C</b>" % round(rozdil_teplot,1),
             }), { "Content-type": "application/x-www-form-urlencoded" })
             conn.getresponse()
             print("Zpráva byla odeslána.")
