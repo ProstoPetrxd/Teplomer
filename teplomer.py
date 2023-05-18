@@ -1,5 +1,3 @@
-#!/usr/bin/env python
- 
 import time
 import datetime
 import urllib.request
@@ -96,7 +94,7 @@ class PyMeteo:
             print(time.strftime('%c', time.localtime(self.timestamp)))
         return self.timestamp
 
-pocet = 5
+pocet = 0
 while True:
     if __name__ == '__main__':
         sensors = ['temperature', 'temperature_apparent', 'humidity', 'pressure']
@@ -107,18 +105,21 @@ while True:
         for sensor in sensors:
             m.get_value(sensor)
         urllib.request.urlopen("https://script.google.com/macros/s/AKfycbwywgTKg7z5HZ20MCVtSzl-UiqNcUcTdc5_4C4Jzc3B03S89ykNE-S7Yt9UcOJT735I1g/exec?value=%s" % m.get_value(sensors[0]))
-        pocet += 1
-        print (pocet)
         
-        if(pocet == 6):
+        if(pocet == 5):
             conn = http.client.HTTPSConnection("api.pushover.net:443")
             conn.request("POST", "/1/messages.json",
             urllib.parse.urlencode({
                 "token": "a8fafvyjck1k2de5yz3hphcku3i499",
+                "html": "1",
                 "user": "u586cd4vg7qf4mtgert6buum515t8u",
-                "message": "Teplota ve Dvoře: %s°C" % m.get_value(sensors[0]),
+                "title": "Teplota ve Dvoře: <b>%s°C</b>" % m.get_value(sensors[0]),
+                "message": "Rozdíl za posledních deset minut je: <b>%s°C</b>" % (stara_teplota - m.get_value(sensors[0])),
             }), { "Content-type": "application/x-www-form-urlencoded" })
             conn.getresponse()
+            print("Zpráva byla odeslána.")
             pocet = 0
+            stara_teplota = m.get_value(sensors[0])
 
-    time.sleep(120)
+    pocet += 1
+    time.sleep(118.5)
