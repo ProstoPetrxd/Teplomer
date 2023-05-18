@@ -4,7 +4,7 @@ import time
 import datetime
 import urllib.request
 import xml.etree.ElementTree as ET
-import webbrowser
+import http.client
  
 class PyMeteo:
     debug = False
@@ -95,15 +95,30 @@ class PyMeteo:
         if self.debug:
             print(time.strftime('%c', time.localtime(self.timestamp)))
         return self.timestamp
- 
- 
-if __name__ == '__main__':
-    sensors = ['temperature', 'temperature_apparent', 'humidity', 'pressure']
-    teplota = ['temperature']
-    print ("Dvůr Králové nad Labem")
-    m = PyMeteo('http://moje.meteo-pocasi.cz/environment/web/me220012/xml/xml.xml?USID=1673&_=1684220025754', debug=True)
-    m.download()
-    m.get_last_update()
-    for sensor in sensors:
-        m.get_value(sensor)
-    webbrowser.open("https://script.google.com/macros/s/AKfycbxNf7MKs4mtPYAWbP8nQzNsQ_rlR1G5p4mvhYkHgkcAt0MfzzfOqQEmruI0pPRmpMLfeQ/exec?value=",m.get_value(teplota[0]))
+
+pocet = 5
+while True:
+    if __name__ == '__main__':
+        sensors = ['temperature', 'temperature_apparent', 'humidity', 'pressure']
+        print ("Dvůr Králové nad Labem")
+        m = PyMeteo('http://moje.meteo-pocasi.cz/environment/web/me220012/xml/xml.xml?USID=1673&_=1684220025754', debug=True)
+        m.download()
+        m.get_last_update()
+        for sensor in sensors:
+            m.get_value(sensor)
+        urllib.request.urlopen("https://script.google.com/macros/s/AKfycbwywgTKg7z5HZ20MCVtSzl-UiqNcUcTdc5_4C4Jzc3B03S89ykNE-S7Yt9UcOJT735I1g/exec?value=%s" % m.get_value(sensors[0]))
+        pocet += 1
+        print (pocet)
+        
+        if(pocet == 6):
+            conn = http.client.HTTPSConnection("api.pushover.net:443")
+            conn.request("POST", "/1/messages.json",
+            urllib.parse.urlencode({
+                "token": "a8fafvyjck1k2de5yz3hphcku3i499",
+                "user": "u586cd4vg7qf4mtgert6buum515t8u",
+                "message": "Teplota ve Dvoře: %s°C" % m.get_value(sensors[0]),
+            }), { "Content-type": "application/x-www-form-urlencoded" })
+            conn.getresponse()
+            pocet = 0
+
+    time.sleep(120)
