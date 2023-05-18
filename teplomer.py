@@ -94,6 +94,9 @@ class PyMeteo:
             print(time.strftime('%c', time.localtime(self.timestamp)))
         return self.timestamp
 
+nova_teplota = 0.0
+stara_teplota = 0.0
+rozdil_teplot = 0.0
 pocet = 0
 while True:
     if __name__ == '__main__':
@@ -104,22 +107,24 @@ while True:
         m.get_last_update()
         for sensor in sensors:
             m.get_value(sensor)
-        urllib.request.urlopen("https://script.google.com/macros/s/AKfycbwywgTKg7z5HZ20MCVtSzl-UiqNcUcTdc5_4C4Jzc3B03S89ykNE-S7Yt9UcOJT735I1g/exec?value=%s" % m.get_value(sensors[0]))
+        nova_teplota = m.get_value(sensors[0])
+        urllib.request.urlopen("https://script.google.com/macros/s/AKfycbwywgTKg7z5HZ20MCVtSzl-UiqNcUcTdc5_4C4Jzc3B03S89ykNE-S7Yt9UcOJT735I1g/exec?value=%s" % nova_teplota)
         
         if(pocet == 5):
+            rozdil_teplot = float(nova_teplota) - float(stara_teplota)
             conn = http.client.HTTPSConnection("api.pushover.net:443")
             conn.request("POST", "/1/messages.json",
             urllib.parse.urlencode({
                 "token": "a8fafvyjck1k2de5yz3hphcku3i499",
                 "html": "1",
                 "user": "u586cd4vg7qf4mtgert6buum515t8u",
-                "title": "Teplota ve Dvoře: <b>%s°C</b>" % m.get_value(sensors[0]),
-                "message": "Rozdíl za posledních deset minut je: <b>%s°C</b>" % (stara_teplota - m.get_value(sensors[0])),
+                "title": "Teplota ve Dvoře: %s°C" % nova_teplota,
+                "message": "Rozdíl teplot za posledních 10 minut: <b>%s°C</b>" % rozdil_teplot,
             }), { "Content-type": "application/x-www-form-urlencoded" })
             conn.getresponse()
             print("Zpráva byla odeslána.")
             pocet = 0
-            stara_teplota = m.get_value(sensors[0])
+            stara_teplota = nova_teplota
 
     pocet += 1
     time.sleep(118.5)
