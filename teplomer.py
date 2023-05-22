@@ -15,9 +15,6 @@ class PyMeteo:
         self.debug = debug
         self.url = url
  
-        if self.debug:
-            print(self.url)
- 
         if download_now:
             self.download()
  
@@ -39,8 +36,6 @@ class PyMeteo:
         try:
             self.root = ET.fromstring(xmldata)
             self.timestamp = time.mktime(datetime.datetime.strptime(self.root.attrib['date'] + ' ' + self.root.attrib['time'], '%Y-%m-%d %H:%M:%S').timetuple())
-            if self.debug:
-                print('Data parsed')
         except Exception:
             self.clear_values()
             if self.debug:
@@ -57,32 +52,6 @@ class PyMeteo:
             return None
  
         value = self.root.find('./input/sensor[type="%s"]/value' % param).text
-        if self.debug:
-            print('%s: %s' % (param, value))
-        if value != 'ERROR':
-            return value
-        return None
- 
-    def get_min(self, param):
-        if self.root is None:
-            if self.debug:
-                print('No data downloaded')
-            return None
- 
-        value = self.root.find('./minmax/s[@id="%s"]' % param).attrib['min']
-        if self.debug:
-            print('%s: %s' % (param, value))
-        if value != 'ERROR':
-            return value
-        return None
- 
-    def get_max(self, param):
-        if self.root is None:
-            if self.debug:
-                print('No data downloaded')
-            return None
- 
-        value = self.root.find('./minmax/s[@id="%s"]' % param).attrib['max']
         if self.debug:
             print('%s: %s' % (param, value))
         if value != 'ERROR':
@@ -111,6 +80,7 @@ while True:
         if((((t.minute%2) == 0) or (t.minute == 0)) and (t.second == 0)):
             #Pokud uběhly dvě minuty, zapsat hodnoty do tabulky.
             sensors = ['temperature']
+            print(t.hour, ":", t.minute)
             m = PyMeteo('http://moje.meteo-pocasi.cz/environment/web/me220012/xml/xml.xml?USID=1673&_=1684220025754', debug=True)
             m.download()
             nova_teplota = m.get_value(sensors[0])
@@ -142,11 +112,11 @@ while True:
                         "html": "1",
                         "user": "u586cd4vg7qf4mtgert6buum515t8u",
                         "title": "Teplota ve Dvoře: %s°C" % nova_teplota,
-                        "message": \
-                            "Rozdíl teplot za uplynulou hodinu: <b>" + round(rozdil_teplot,1) + "°C</b>\
-                            <br>Průměrná teplota: <b>" + round(celkova_teplota/30) + "°C</b>\
-                            <br>Minimální teplota: <b>" + round(minimalni_teplota) + "°C</b>\
-                            <br>Maximální teplota: <b>" + round(maximalni_teplota) + "°C</b>",
+                        "message": "Rozdíl teplot za uplynulou hodinu: <b>%s°C</b>\
+                        <br>Průměrná teplota: <b>%s°C</b>\
+                        <br>Minimální teplota: <b>%s°C</b>\
+                        <br>Maximální teplota: <b>%s°C</b>" \
+                        % (str(round(rozdil_teplot, 1)), str(round(celkova_teplota, 1)), str(round(minimalni_teplota, 1)), str(round(maximalni_teplota, 1))),
                     }), { "Content-type": "application/x-www-form-urlencoded" })
                     conn.getresponse()
                     print("Zpráva byla odeslána.")
