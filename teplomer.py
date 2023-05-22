@@ -66,6 +66,7 @@ class PyMeteo:
 nova_teplota = 0.0
 stara_teplota = 0.0
 rozdil_teplot = 0.0
+pocet = 0
 celkova_teplota = 0.0
 maximalni_teplota = 0.0
 minimalni_teplota = 100.0
@@ -84,6 +85,7 @@ while True:
             m = PyMeteo('http://moje.meteo-pocasi.cz/environment/web/me220012/xml/xml.xml?USID=1673&_=1684220025754', debug=True)
             m.download()
             nova_teplota = m.get_value(sensors[0])
+            pocet += 1
 
             #Přidání naměřené hodnoty do průměru
             celkova_teplota += float(nova_teplota)
@@ -116,7 +118,7 @@ while True:
                         <br>Průměrná teplota: <b>%s°C</b>\
                         <br>Minimální teplota: <b>%s°C</b>\
                         <br>Maximální teplota: <b>%s°C</b>" \
-                        % (str(round(rozdil_teplot, 1)), str(round(celkova_teplota, 1)), str(round(minimalni_teplota, 1)), str(round(maximalni_teplota, 1))),
+                        % (str(round(rozdil_teplot, 1)), str(round(celkova_teplota/pocet, 1)), str(round(minimalni_teplota, 1)), str(round(maximalni_teplota, 1))),
                     }), { "Content-type": "application/x-www-form-urlencoded" })
                     conn.getresponse()
                     print("Zpráva byla odeslána.")
