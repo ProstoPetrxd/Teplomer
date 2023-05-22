@@ -97,34 +97,64 @@ class PyMeteo:
 nova_teplota = 0.0
 stara_teplota = 0.0
 rozdil_teplot = 0.0
-pocet = 0
-while True:
-    if __name__ == '__main__':
-        sensors = ['temperature', 'temperature_apparent', 'humidity', 'pressure']
-        print ("Dvůr Králové nad Labem")
-        m = PyMeteo('http://moje.meteo-pocasi.cz/environment/web/me220012/xml/xml.xml?USID=1673&_=1684220025754', debug=True)
-        m.download()
-        m.get_last_update()
-        for sensor in sensors:
-            m.get_value(sensor)
-        nova_teplota = m.get_value(sensors[0])
-        urllib.request.urlopen("https://script.google.com/macros/s/AKfycbwywgTKg7z5HZ20MCVtSzl-UiqNcUcTdc5_4C4Jzc3B03S89ykNE-S7Yt9UcOJT735I1g/exec?value=%s" % nova_teplota)
-        
-        if(pocet == 5):
-            rozdil_teplot = float(nova_teplota) - float(stara_teplota)
-            conn = http.client.HTTPSConnection("api.pushover.net:443")
-            conn.request("POST", "/1/messages.json",
-            urllib.parse.urlencode({
-                "token": "a8fafvyjck1k2de5yz3hphcku3i499",
-                "html": "1",
-                "user": "u586cd4vg7qf4mtgert6buum515t8u",
-                "title": "Teplota ve Dvoře: %s°C" % nova_teplota,
-                "message": "Rozdíl teplot za posledních 10 minut: <b>%s°C</b>" % round(rozdil_teplot,1),
-            }), { "Content-type": "application/x-www-form-urlencoded" })
-            conn.getresponse()
-            print("Zpráva byla odeslána.")
-            pocet = 0
-            stara_teplota = nova_teplota
+celkova_teplota = 0.0
+maximalni_teplota = 0.0
+minimalni_teplota = 100.0
 
-    pocet += 1
-    time.sleep(118.5)
+while True:
+    t = datetime.datetime.now()
+    if((t.hour == 0) and (t.minute == 0)):
+        ##Vymazání dat z tabulky každý den o půlnoci.
+        urllib.request.urlopen("https://script.google.com/macros/s/AKfycbx8dInME9tlD57F9EjqsVx0RMmk5p4XEpGsS6hv11ggZ6jfNNxRrGLi3uXQwC3h1DG3/exec")
+    
+    if __name__ == '__main__':
+        if((((t.minute%2) == 0) or (t.minute == 0)) and (t.second == 0)):
+            #Pokud uběhly dvě minuty, zapsat hodnoty do tabulky.
+            sensors = ['temperature']
+            m = PyMeteo('http://moje.meteo-pocasi.cz/environment/web/me220012/xml/xml.xml?USID=1673&_=1684220025754', debug=True)
+            m.download()
+            nova_teplota = m.get_value(sensors[0])
+
+            #Přidání naměřené hodnoty do průměru
+            celkova_teplota += float(nova_teplota)
+
+            #Případný zápis nové maximální hodnoty
+            if(float(nova_teplota) > float(maximalni_teplota)):
+                maximalni_teplota = float(nova_teplota)
+
+            #Případný zápis nové minimální hodnoty
+            if(float(nova_teplota) < float(minimalni_teplota)):
+                minimalni_teplota = float(nova_teplota)
+
+            urllib.request.urlopen("https://script.google.com/macros/s/AKfycbwywgTKg7z5HZ20MCVtSzl-UiqNcUcTdc5_4C4Jzc3B03S89ykNE-S7Yt9UcOJT735I1g/exec?value=%s" % nova_teplota)
+            if((t.hour >= 8) and (t.hour <= 22)):
+                #Program bude odesílat upozornění pouze mezi 8:00 a 22:00
+                #Pokud je celá hodina, odelsat upozornění na telefon.
+                if((t.minute == 0) and (t.second == 0)):
+                    with open('teplota.txt', 'r') as f:
+                        stara_teplota = f.read()
+                        f.close()
+                    rozdil_teplot = float(nova_teplota) - float(stara_teplota)
+                    conn = http.client.HTTPSConnection("api.pushover.net:443")
+                    conn.request("POST", "/1/messages.json",
+                    urllib.parse.urlencode({
+                        "token": "a8fafvyjck1k2de5yz3hphcku3i499",
+                        "html": "1",
+                        "user": "u586cd4vg7qf4mtgert6buum515t8u",
+                        "title": "Teplota ve Dvoře: %s°C" % nova_teplota,
+                        "message": \
+                            "Rozdíl teplot za uplynulou hodinu: <b>" + round(rozdil_teplot,1) + "°C</b>\
+                            <br>Průměrná teplota: <b>" + round(celkova_teplota/30) + "°C</b>\
+                            <br>Minimální teplota: <b>" + round(minimalni_teplota) + "°C</b>\
+                            <br>Maximální teplota: <b>" + round(maximalni_teplota) + "°C</b>",
+                    }), { "Content-type": "application/x-www-form-urlencoded" })
+                    conn.getresponse()
+                    print("Zpráva byla odeslána.")
+                    celkova_teplota = 0.0
+                    maximalni_teplota = 0.0
+                    minimalni_teplota = 100.0
+                    with open('teplota.txt', 'w') as f:
+                        stara_teplota = f.write(nova_teplota)
+                        f.close()
+    #Počkat 1 sekundu, aby se odeslal jen jeden záznam.
+    time.sleep(1)
