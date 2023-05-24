@@ -82,7 +82,7 @@ while True:
     if __name__ == '__main__':
 
         # Zapnutí programu, pokud uběhly dvě minuty
-        if((((t.minute%1) == 0) or (t.minute == 0)) and (t.second == 0)):
+        if((((t.minute%2) == 0) or (t.minute == 0)) and (t.second == 0)):
 
             # Získáni hodnot
             sensors = ['temperature']
