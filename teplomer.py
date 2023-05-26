@@ -85,27 +85,26 @@ while True:
     m.download()
     nova_teplota = m.get_value(sensors[0])
     
-    if __name__ == '__main__':
-        
+    if __name__ == '__main__':  
             
         # Zapnutí programu, pokud uběhly dvě minuty
-        if((((t.minute%2) == 0) or (t.minute == 0)) and (t.second == 0)):
-                
+        if(((t.minute%1) == 0) and (t.second == 0)):
+            
             # Otestovat typ proměnné, pokud by to nebylo, vyskytly by se chyby
             if((type(nova_teplota) == str) or (type(nova_teplota) == float)):
                 
-                if(t.hour < 10):
-                    hodina = "0%s" % t.hour
-                else:
-                    hodina = t.hour
+                # Zapsání aktuální teploty do Google Sheets tabulky
+                urllib.request.urlopen("https://script.google.com/macros/s/AKfycbwywgTKg7z5HZ20MCVtSzl-UiqNcUcTdc5_4C4Jzc3B03S89ykNE-S7Yt9UcOJT735I1g/exec?value=%s" % nova_teplota)
 
-                if(t.minute < 10):
-                    minuta = "0%s" % t.minute
-                else:
-                    minuta = t.minute
-                    
                 # Kontrolní vypsání aktuálních hodnot.
-                print("%s:%s - Teplota: %s°C" % (hodina, minuta, nova_teplota))
+                if(t.hour < 10 and t.minute < 10):
+                    print("0%s:0%s - Teplota: %s°C" % (t.hour, t.minute, nova_teplota))
+                elif(t.hour < 10):
+                    print("0%s:%s - Teplota: %s°C" % (t.hour, t.minute, nova_teplota))
+                elif(t.minute < 10):
+                    print("%s:0%s - Teplota: %s°C" % (t.hour, t.minute, nova_teplota))
+                else:
+                    print("%s:%s - Teplota: %s°C" % (t.hour, t.minute, nova_teplota))
 
                 # Přidání naměřené hodnoty do průměru
                 celkova_teplota += float(nova_teplota)
@@ -119,11 +118,8 @@ while True:
                 if(float(nova_teplota) < float(minimalni_teplota)):
                     minimalni_teplota = float(nova_teplota)
 
-                # Zapsání aktuální teploty do Google Sheets tabulky
-#                urllib.request.urlopen("https://script.google.com/macros/s/AKfycbwywgTKg7z5HZ20MCVtSzl-UiqNcUcTdc5_4C4Jzc3B03S89ykNE-S7Yt9UcOJT735I1g/exec?value=%s" % nova_teplota)
-
                 # Program bude odesílat upozornění pouze mezi 7:00 a 22:00
-                if((t.hour >= 7) and (t.hour <= 22)):
+                if((t.hour >= 6) and (t.hour <= 22)):
 
                     # Pokud je celá hodina, spustit proces pro odeslání notifikace.
                     if((t.minute == 0) and (t.second == 0)):
@@ -155,9 +151,16 @@ while True:
                             % (round(rozdil_teplot, 1), prumerna_teplota, round(minimalni_teplota, 1), round(maximalni_teplota, 1)),
                         }), { "Content-type": "application/x-www-form-urlencoded" })
                         conn.getresponse()
-
-                        # Upozornění o odeslání notifikace do telfonu
-                        print("- %s:%s - Zpráva byla odeslána" % (hodina, minuta))
+                        
+                        # Upozornění o odeslání notifikace do telefonu
+                        if(t.hour < 10 and t.minute < 10):
+                            print("- 0%s:0%s - Zpráva byla odeslána" % (t.hour, t.minute))
+                        elif(t.hour < 10):
+                            print("- 0%s:%s - Zpráva byla odeslána" % (t.hour, t.minute))
+                        elif(t.minute < 10):
+                            print("- %s:0%s - Zpráva byla odeslána" % (t.hour, t.minute))
+                        else:
+                            print("- %s:%s - Zpráva byla odeslána" % (t.hour, t.minute))
 
                         # Zapsat aktuální teplotu pro porovnání příští hodinu
                         with open('teplota.txt', 'w') as f:
@@ -169,6 +172,6 @@ while True:
                         maximalni_teplota = 0.0
                         minimalni_teplota = 100.0
             else:
-                print("%s:%s - - - %s je typ %s" % (hodina, minuta, nova_teplota, type(nova_teplota)))
+                print("%s:%s - - - %s je typ %s" % (t.hour, t.minute, nova_teplota, type(nova_teplota)))
     # Počkat 1 sekundu, aby se odeslal jen jeden záznam.
     time.sleep(1)
